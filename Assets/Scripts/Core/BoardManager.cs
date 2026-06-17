@@ -19,6 +19,11 @@ public class BoardManager : MonoBehaviour
 
     [SerializeField] private List<Card> _pendingPair = new();
     private bool _isEvaluating = false;
+    
+    private int _moveCount = 0;
+    private float _elapsedTime = 0f;
+    
+    public bool IsGameOver = false;
 
     private void Awake()
     {
@@ -26,9 +31,19 @@ public class BoardManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
+    
+    public void StartNewGame()
     {
+        _seed = Random.Range(0, 99999);
+        _moveCount   = 0;
+        _elapsedTime = 0f;
         StartCoroutine(SpawnAfterLayout());
+    }
+    
+    private void Update()
+    {
+        if (_spawnedCards.Count > 0)
+            _elapsedTime += Time.deltaTime;
     }
     
     private IEnumerator SpawnAfterLayout()
@@ -75,6 +90,7 @@ public class BoardManager : MonoBehaviour
         
         if (_pendingPair.Contains(card)) return;
 
+        _moveCount++;
         _pendingPair.Add(card);
 
         if (card.Data.pairId == -1)
@@ -161,7 +177,73 @@ public class BoardManager : MonoBehaviour
             if (card.State != CardState.Matched) return;
         }
 
+        IsGameOver = true;
+        SaveManager.DeleteSave();
         Debug.Log("YOU WIN!");
+    }
+    
+    public IEnumerator RestoreState(SaveData data)
+    {
+        foreach (var card in _spawnedCards)
+        {
+            Destroy(card.gameObject);
+        }
+
+        _spawnedCards.Clear();
+        _pendingPair.Clear();
+        _isEvaluating = false;
+
+        _currentLayout = new GridConfig(data.columns, data.rows);
+        _seed = data.seed;
+        _moveCount = data.moveCount;
+        _elapsedTime = data.elapsedTime;
+
+        yield return null;
+
+        _dynamicGrid.SetupGrid(_currentLayout.columns, _currentLayout.rows, _cardSpacing);
+
+        var cardDataList = ShuffleController.GenerateShuffleCards(_currentLayout, _seed);
+
+        for (int i = 0; i < cardDataList.Count; i++)
+        {
+            var cardGO = Instantiate(_cardPrefab, _boardContainer);
+            var controller = cardGO.GetComponent<Card>();
+            controller.Initialize(cardDataList[i], null);
+
+            if (i < data.cardStates.Count && data.cardStates[i].isMatched)
+            {
+                controller.SetMatchedInstant();
+            }
+
+            _spawnedCards.Add(controller);
+        }
+
+        Debug.Log($"[BoardManager] Restored → {data.columns}x{data.rows} seed:{data.seed} moves:{data.moveCount}");
+    }
+    
+    public SaveData CaptureState()
+    {
+        var data = new SaveData();
+        data.columns = _currentLayout.columns;
+        data.rows = _currentLayout.rows;
+        data.seed = _seed;
+        data.moveCount = _moveCount;
+        data.elapsedTime = _elapsedTime;
+        data.score = 20; // static value set for now
+        data.comboCount = 2; // static value set for now
+
+        foreach (var card in _spawnedCards)
+        {
+            data.cardStates.Add(new CardSaveState
+            {
+                cardId = card.Data.cardId,
+                pairId = card.Data.pairId,
+                spriteIndex = card.Data.spriteIndex,
+                isMatched = card.State == CardState.Matched
+            });
+        }
+
+        return data;
     }
     
 }

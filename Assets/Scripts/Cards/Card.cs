@@ -78,4 +78,12 @@ public class Card : MonoBehaviour
         SetState(CardState.Matched);
         _button.interactable = false;
     }
+    
+    public void SetMatchedInstant()
+    {
+        _cardBack.gameObject.SetActive(false);
+        _cardFaceObj.SetActive(true);
+        SetState(CardState.Matched);
+        _button.interactable = false;
+    }
 }
