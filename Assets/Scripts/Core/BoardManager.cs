@@ -11,14 +11,13 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private RectTransform _boardContainer;
     [SerializeField] private DynamicGridLayout _dynamicGrid;
     
-    [SerializeField] private int _columns = 2;
-    [SerializeField] private int _rows = 2;
+    [SerializeField] private GridConfig _currentLayout = new GridConfig(2, 2);
     [SerializeField] private int _seed = 42;
     [SerializeField] private float _cardSpacing = 10f;
 
     private List<Card> _spawnedCards = new();
 
-    private List<Card> _pendingPair = new();
+    [SerializeField] private List<Card> _pendingPair = new();
     private bool _isEvaluating = false;
 
     private void Awake()
@@ -38,10 +37,10 @@ public class BoardManager : MonoBehaviour
         yield return null;
         
         // Setup grid FIRST before spawning anything
-        _dynamicGrid.SetupGrid(_columns, _rows, _cardSpacing);
+        _dynamicGrid.SetupGrid(_currentLayout.columns, _currentLayout.rows, _cardSpacing);
 
         // Generate shuffled card data before card spawn
-        var cardDataList = ShuffleController.GenerateShuffleCards(_columns, _rows, _seed);
+        var cardDataList = ShuffleController.GenerateShuffleCards(_currentLayout, _seed);
 
         // Spawn cards and set into GridLayoutGroup
         foreach (var cardData in cardDataList)
@@ -60,7 +59,33 @@ public class BoardManager : MonoBehaviour
         if (_pendingPair.Contains(card)) return;
 
         _pendingPair.Add(card);
+
+        if (card.Data.pairId == -1)
+        {
+            if (_pendingPair.Count == 2)
+            {
+                StartCoroutine(FlipAndEvaluate(card));
+            }
+            else
+            {
+                StartCoroutine(HandleWildcard(card));
+            }
+            return;
+        }
+
         StartCoroutine(FlipAndEvaluate(card));
+    }
+    
+    private IEnumerator HandleWildcard(Card card)
+    {
+        bool flipDone = false;
+        yield return card.DoFlip(() => flipDone = true);
+        yield return new WaitUntil(() => flipDone);
+
+        yield return new WaitForSeconds(0.4f);
+        card.SetMatched();
+        _pendingPair.Clear();
+        CheckWinCondition();
     }
     
     private IEnumerator FlipAndEvaluate(Card card)

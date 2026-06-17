@@ -24,7 +24,14 @@ public class Card : MonoBehaviour
     public void Initialize(CardData data, Sprite faceSprite)
     {
         Data = data;
-        // _cardFaceIcon.sprite = faceSprite;
+
+        bool isWildcard  = data.pairId == -1;
+        _cardFaceIcon.sprite = isWildcard ? null : faceSprite;
+
+        // Wild card color set differ then other cards so user can easy to identify
+        if (isWildcard)
+            _cardBack.color = new Color(1f, 0.85f, 0f);
+
         SetState(CardState.FaceDown);
     }
     

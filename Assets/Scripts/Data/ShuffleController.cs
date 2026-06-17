@@ -4,12 +4,12 @@ namespace Data
 {
     public static class ShuffleController
     {
-        public static List<CardData> GenerateShuffleCards(int columns, int rows, int seed)
+        public static List<CardData> GenerateShuffleCards(GridConfig layout, int seed)
         {
             var rng = new System.Random(seed);
             var cards = new List<CardData>();
 
-            int total = columns * rows;
+            int total = layout.TotalCards;
             int pairs = total / 2;
 
             for (int i = 0; i < pairs; i++)
