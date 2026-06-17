@@ -52,6 +52,23 @@ public class BoardManager : MonoBehaviour
         }
     }
     
+    public void ResetBoard(GridConfig newLayout)
+    {
+        foreach (var card in _spawnedCards)
+        {
+            Destroy(card.gameObject);
+        }
+
+        _spawnedCards.Clear();
+        _pendingPair.Clear();
+
+        _currentLayout = newLayout;
+
+        _seed = Random.Range(0, 99999);
+
+        StartCoroutine(SpawnAfterLayout());
+    }
+    
     public void RequestFlip(Card card)
     {
         Debug.Log($"RequestFlip — cardId: {card.Data.cardId}, pairId: {card.Data.pairId}");
