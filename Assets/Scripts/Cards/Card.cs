@@ -24,24 +24,15 @@ public class Card : MonoBehaviour
     public void Initialize(CardData data, Sprite faceSprite)
     {
         Data = data;
-        _cardFaceIcon.sprite = faceSprite;
+        // _cardFaceIcon.sprite = faceSprite;
         SetState(CardState.FaceDown);
     }
     
     public void OnClicked()
     {
-        // if (State != CardState.FaceDown || _isAnimating) return;
+        if (State != CardState.FaceDown || _isAnimating) return;
         
-        if (_isAnimating) return;
-
-        if (State == CardState.FaceDown)
-        {
-            StartCoroutine(DoFlip());
-        }
-        else
-        {
-            StartCoroutine(DoReverseFlip());
-        }
+        StartCoroutine(DoFlip());
     }
     
     private IEnumerator DoFlip()
@@ -52,8 +43,7 @@ public class Card : MonoBehaviour
         yield return _animator.FlipToFace(() => {
             SetState(CardState.FaceUp);
             _isAnimating = false;
-            Debug.Log($"Flip done...");
-            // Debug.Log($"Flip done — pairId: {Data.pairId}");
+            Debug.Log($"Flip done — pairId: {Data.pairId}");
         });
     }
     
@@ -65,14 +55,13 @@ public class Card : MonoBehaviour
         yield return _animator.FlipToBack(() => {
             SetState(CardState.FaceDown);
             _isAnimating = false;
-            Debug.Log($"ReverseFlip done...");
-            // Debug.Log($"ReverseFlip done — pairId: {Data.pairId}");
+            Debug.Log($"ReverseFlip done — pairId: {Data.pairId}");
         });
     }
     
     private void SetState(CardState newState)
     {
         State = newState;
-        // _button.interactable = (newState == CardState.FaceDown);
+        _button.interactable = (newState == CardState.FaceDown);
     }
 }
