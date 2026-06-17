@@ -18,6 +18,9 @@ public class BoardManager : MonoBehaviour
 
     private List<Card> _spawnedCards = new();
 
+    private List<Card> _pendingPair = new();
+    private bool _isEvaluating = false;
+
     private void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -49,4 +52,64 @@ public class BoardManager : MonoBehaviour
             _spawnedCards.Add(controller);
         }
     }
+    
+    public void RequestFlip(Card card)
+    {
+        Debug.Log($"RequestFlip — cardId: {card.Data.cardId}, pairId: {card.Data.pairId}");
+        
+        if (_pendingPair.Contains(card)) return;
+
+        _pendingPair.Add(card);
+        StartCoroutine(FlipAndEvaluate(card));
+    }
+    
+    private IEnumerator FlipAndEvaluate(Card card)
+    {
+        bool flipDone = false;
+        yield return card.DoFlip(() => flipDone = true);
+        yield return new WaitUntil(() => flipDone);
+
+        // Only evaluate when 2 cards in pair list
+        if (_pendingPair.Count < 2) yield break;
+
+        var cardA = _pendingPair[0];
+        var cardB = _pendingPair[1];
+        _pendingPair.Clear();
+
+        yield return EvaluatePair(cardA, cardB);
+    }
+    
+    private IEnumerator EvaluatePair(Card cardA, Card cardB)
+    {
+        _isEvaluating = true;
+
+        bool isMatch = cardA.Data.pairId == cardB.Data.pairId;
+
+        // Wildcard — pairId -1 always matches itself (When extra card add that time it become wildcard)
+        if (cardA.Data.pairId == -1 && cardB.Data.pairId == -1)
+            isMatch = true;
+
+        if (isMatch)
+        {
+            cardA.SetMatched();
+            cardB.SetMatched();
+            Debug.Log("MATCH !!!!");
+        }
+        else
+        {
+            // Small pause so player sees both faces
+            yield return new WaitForSeconds(0.6f);
+
+            bool aDone = false, bDone = false;
+            StartCoroutine(cardA.DoReverseFlip(() => aDone = true));
+            StartCoroutine(cardB.DoReverseFlip(() => bDone = true));
+
+            yield return new WaitUntil(() => aDone && bDone);
+            Debug.Log("MISMATCH !!!!");
+        }
+
+        _isEvaluating = false;
+        // CheckWinCondition();
+    }
+    
 }

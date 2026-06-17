@@ -31,11 +31,10 @@ public class Card : MonoBehaviour
     public void OnClicked()
     {
         if (State != CardState.FaceDown || _isAnimating) return;
-        
-        StartCoroutine(DoFlip());
+        BoardManager.Instance.RequestFlip(this);
     }
     
-    private IEnumerator DoFlip()
+    public IEnumerator DoFlip(System.Action onComplete = null)
     {
         _isAnimating = true;
         SetState(CardState.Flipping);
@@ -44,10 +43,11 @@ public class Card : MonoBehaviour
             SetState(CardState.FaceUp);
             _isAnimating = false;
             Debug.Log($"Flip done — pairId: {Data.pairId}");
+            onComplete?.Invoke();
         });
     }
     
-    private IEnumerator DoReverseFlip()
+    public IEnumerator DoReverseFlip(System.Action onComplete = null)
     {
         _isAnimating = true;
         SetState(CardState.Flipping);
@@ -56,6 +56,7 @@ public class Card : MonoBehaviour
             SetState(CardState.FaceDown);
             _isAnimating = false;
             Debug.Log($"ReverseFlip done — pairId: {Data.pairId}");
+            onComplete?.Invoke();
         });
     }
     
@@ -63,5 +64,11 @@ public class Card : MonoBehaviour
     {
         State = newState;
         _button.interactable = (newState == CardState.FaceDown);
+    }
+    
+    public void SetMatched()
+    {
+        SetState(CardState.Matched);
+        _button.interactable = false;
     }
 }
