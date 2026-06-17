@@ -109,7 +109,17 @@ public class BoardManager : MonoBehaviour
         }
 
         _isEvaluating = false;
-        // CheckWinCondition();
+        CheckWinCondition();
+    }
+    
+    private void CheckWinCondition()
+    {
+        foreach (var card in _spawnedCards)
+        {
+            if (card.State != CardState.Matched) return;
+        }
+
+        Debug.Log("YOU WIN!");
     }
     
 }
