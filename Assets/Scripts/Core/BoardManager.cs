@@ -35,14 +35,16 @@ public class BoardManager : MonoBehaviour
     public void StartNewGame()
     {
         _seed = Random.Range(0, 99999);
-        _moveCount   = 0;
+        _moveCount = 0;
         _elapsedTime = 0f;
+        IsGameOver = false;
+        ScoreManager.Instance.ResetScore();
         StartCoroutine(SpawnAfterLayout());
     }
     
     private void Update()
     {
-        if (_spawnedCards.Count > 0)
+        if (_spawnedCards.Count > 0 && !IsGameOver)
             _elapsedTime += Time.deltaTime;
     }
     
@@ -80,6 +82,7 @@ public class BoardManager : MonoBehaviour
         _currentLayout = newLayout;
 
         _seed = Random.Range(0, 99999);
+        IsGameOver = false;
 
         StartCoroutine(SpawnAfterLayout());
     }
@@ -87,10 +90,12 @@ public class BoardManager : MonoBehaviour
     public void RequestFlip(Card card)
     {
         Debug.Log($"RequestFlip — cardId: {card.Data.cardId}, pairId: {card.Data.pairId}");
-        
+    
         if (_pendingPair.Contains(card)) return;
 
         _moveCount++;
+        ScoreManager.Instance.OnTurnTaken();
+        
         _pendingPair.Add(card);
 
         if (card.Data.pairId == -1)
@@ -117,6 +122,8 @@ public class BoardManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.4f);
         card.SetMatched();
+        ScoreManager.Instance.OnMatch();
+
         _pendingPair.Clear();
         CheckWinCondition();
     }
@@ -151,10 +158,13 @@ public class BoardManager : MonoBehaviour
         {
             cardA.SetMatched();
             cardB.SetMatched();
+            ScoreManager.Instance.OnMatch();
             Debug.Log("MATCH !!!!");
         }
         else
         {
+            ScoreManager.Instance.OnMismatch();
+            
             // Small pause so player sees both faces
             yield return new WaitForSeconds(0.6f);
 
@@ -192,6 +202,7 @@ public class BoardManager : MonoBehaviour
         _spawnedCards.Clear();
         _pendingPair.Clear();
         _isEvaluating = false;
+        IsGameOver = false;
 
         _currentLayout = new GridConfig(data.columns, data.rows);
         _seed = data.seed;
@@ -218,6 +229,8 @@ public class BoardManager : MonoBehaviour
             _spawnedCards.Add(controller);
         }
 
+        ScoreManager.Instance.RestoreScore(data.score, data.turnScore, 0);
+        
         Debug.Log($"[BoardManager] Restored → {data.columns}x{data.rows} seed:{data.seed} moves:{data.moveCount}");
     }
     
@@ -229,8 +242,9 @@ public class BoardManager : MonoBehaviour
         data.seed = _seed;
         data.moveCount = _moveCount;
         data.elapsedTime = _elapsedTime;
-        data.score = 20; // static value set for now
-        data.comboCount = 2; // static value set for now
+        data.score = ScoreManager.Instance.CurrentScore;
+        data.turnScore = ScoreManager.Instance.TurnScore;
+        data.comboCount = ScoreManager.Instance.ComboCount;
 
         foreach (var card in _spawnedCards)
         {

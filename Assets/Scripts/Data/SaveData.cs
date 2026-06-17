@@ -18,6 +18,7 @@ namespace Data
         public int rows;
         public int seed;
         public int score;
+        public int turnScore;
         public int comboCount;
         public int moveCount;
         public float elapsedTime;
