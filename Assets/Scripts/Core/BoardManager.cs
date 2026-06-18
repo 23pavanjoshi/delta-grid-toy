@@ -20,7 +20,6 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private Sprite _wildCardSpriteIcon;
 
     [SerializeField] private List<Card> _pendingPair = new();
-    private bool _isEvaluating = false;
     
     private int _moveCount = 0;
     private float _elapsedTime = 0f;
@@ -176,8 +175,6 @@ public class BoardManager : MonoBehaviour
     
     private IEnumerator EvaluatePair(Card cardA, Card cardB)
     {
-        _isEvaluating = true;
-
         bool isMatch = cardA.Data.pairId == cardB.Data.pairId;
 
         // Wildcard — pairId -1 always matches itself (When extra card add that time it become wildcard)
@@ -207,7 +204,6 @@ public class BoardManager : MonoBehaviour
             Debug.Log("MISMATCH !!!!");
         }
 
-        _isEvaluating = false;
         CheckWinCondition();
     }
     
@@ -234,7 +230,6 @@ public class BoardManager : MonoBehaviour
 
         _spawnedCards.Clear();
         _pendingPair.Clear();
-        _isEvaluating = false;
         IsGameOver = false;
 
         _currentLayout = new GridConfig(data.columns, data.rows);
