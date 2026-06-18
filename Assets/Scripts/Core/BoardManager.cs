@@ -32,7 +32,6 @@ public class BoardManager : MonoBehaviour
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
     }
-
     
     public void StartNewGame()
     {
@@ -105,7 +104,9 @@ public class BoardManager : MonoBehaviour
         {
             if (_pendingPair.Count == 2)
             {
-                StartCoroutine(FlipAndEvaluate(card));
+                var waiting = _pendingPair[0];
+                _pendingPair.Clear();
+                StartCoroutine(HandleWildcardWithPending(card, waiting));
             }
             else
             {
@@ -114,7 +115,49 @@ public class BoardManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(FlipAndEvaluate(card));
+        if (_pendingPair.Count == 2)
+        {
+            var cardA = _pendingPair[0];
+            var cardB = _pendingPair[1];
+            _pendingPair.Clear();
+            StartCoroutine(FlipThenEvaluate(cardA, cardB));
+            return;
+        }
+
+        StartCoroutine(FlipAndWait(card));
+    }
+    
+    private IEnumerator FlipAndWait(Card card)
+    {
+        bool flipDone = false;
+        yield return card.DoFlip(() => flipDone = true);
+        yield return new WaitUntil(() => flipDone);
+    }
+
+    private IEnumerator FlipThenEvaluate(Card cardA, Card cardB)
+    {
+        bool flipDone = false;
+        yield return cardB.DoFlip(() => flipDone = true);
+        yield return new WaitUntil(() => flipDone);
+
+        yield return EvaluatePair(cardA, cardB);
+    }
+    
+    private IEnumerator HandleWildcardWithPending(Card wildcard, Card waitingCard)
+    {
+        bool reverseDone = false;
+        StartCoroutine(waitingCard.DoReverseFlip(() => reverseDone = true));
+        yield return new WaitUntil(() => reverseDone);
+
+        bool flipDone = false;
+        yield return wildcard.DoFlip(() => flipDone = true);
+        yield return new WaitUntil(() => flipDone);
+
+        yield return new WaitForSeconds(0.4f);
+        wildcard.SetMatched();
+        ScoreManager.Instance.OnMatch();
+        AudioManager.Instance.PlayMatch();
+        CheckWinCondition();
     }
     
     private IEnumerator HandleWildcard(Card card)
@@ -129,22 +172,6 @@ public class BoardManager : MonoBehaviour
         AudioManager.Instance.PlayMatch();
         _pendingPair.Clear();
         CheckWinCondition();
-    }
-    
-    private IEnumerator FlipAndEvaluate(Card card)
-    {
-        bool flipDone = false;
-        yield return card.DoFlip(() => flipDone = true);
-        yield return new WaitUntil(() => flipDone);
-
-        // Only evaluate when 2 cards in pair list
-        if (_pendingPair.Count < 2) yield break;
-
-        var cardA = _pendingPair[0];
-        var cardB = _pendingPair[1];
-        _pendingPair.Clear();
-
-        yield return EvaluatePair(cardA, cardB);
     }
     
     private IEnumerator EvaluatePair(Card cardA, Card cardB)
