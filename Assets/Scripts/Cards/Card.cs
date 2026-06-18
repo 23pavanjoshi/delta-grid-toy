@@ -26,8 +26,8 @@ public class Card : MonoBehaviour
         Data = data;
 
         bool isWildcard  = data.pairId == -1;
-        _cardFaceIcon.sprite = isWildcard ? null : faceSprite;
-
+        _cardFaceIcon.sprite = faceSprite;
+        
         // Wild card color set differ then other cards so user can easy to identify
         if (isWildcard)
             _cardBack.color = new Color(1f, 0.85f, 0f);

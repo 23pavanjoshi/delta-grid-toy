@@ -16,6 +16,8 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private float _cardSpacing = 10f;
 
     private List<Card> _spawnedCards = new();
+    [SerializeField] private List<Sprite> _cardIconSprite = new();
+    [SerializeField] private Sprite _wildCardSpriteIcon;
 
     [SerializeField] private List<Card> _pendingPair = new();
     private bool _isEvaluating = false;
@@ -64,7 +66,8 @@ public class BoardManager : MonoBehaviour
         {
             var cardGO = Instantiate(_cardPrefab, _boardContainer);
             var controller = cardGO.GetComponent<Card>();
-            controller.Initialize(cardData, null);
+            var cardSprite = cardData.pairId == -1 ? _wildCardSpriteIcon : _cardIconSprite[cardData.spriteIndex];
+            controller.Initialize(cardData, cardSprite);
             _spawnedCards.Add(controller);
         }
     }
@@ -221,7 +224,8 @@ public class BoardManager : MonoBehaviour
         {
             var cardGO = Instantiate(_cardPrefab, _boardContainer);
             var controller = cardGO.GetComponent<Card>();
-            controller.Initialize(cardDataList[i], null);
+            var cardSprite = cardDataList[i].pairId == -1 ? _wildCardSpriteIcon : _cardIconSprite[cardDataList[i].spriteIndex];
+            controller.Initialize(cardDataList[i], cardSprite);
 
             if (i < data.cardStates.Count && data.cardStates[i].isMatched)
             {

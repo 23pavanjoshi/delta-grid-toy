@@ -1565,6 +1565,35 @@ MonoBehaviour:
     rows: 3
   _seed: 42
   _cardSpacing: 20
+  _cardIconSprite:
+  - {fileID: 21300000, guid: 527c1462df2bdf641bf1e843444776c8, type: 3}
+  - {fileID: 21300000, guid: 7f2d8a9d39868de4aab6ae178a2e39ce, type: 3}
+  - {fileID: 21300000, guid: e75238c7821f7a84a9ceb08958c1947a, type: 3}
+  - {fileID: 21300000, guid: 5214ce2205ee7f6459717fce4f1ef918, type: 3}
+  - {fileID: 21300000, guid: 12563ab1004951b4b8376973145924b3, type: 3}
+  - {fileID: 21300000, guid: 916b31763d928b8499fa2a865fdae09a, type: 3}
+  - {fileID: 21300000, guid: 009679eed8cb8ef4494651753a2429fb, type: 3}
+  - {fileID: 21300000, guid: 7725dd7ca37471f4b818ed9799222567, type: 3}
+  - {fileID: 21300000, guid: f886409a13662bc48879c91866c836fb, type: 3}
+  - {fileID: 21300000, guid: 973d9f345c074bd40ae88e485c7aff81, type: 3}
+  - {fileID: 21300000, guid: c09aa59d5e0034b42bdf3845b2fb8522, type: 3}
+  - {fileID: 21300000, guid: aab39318b4c20ad4c8d8eb6f8bb16dd8, type: 3}
+  - {fileID: 21300000, guid: ef3b4a578fbc90844ba396c89d8c71ef, type: 3}
+  - {fileID: 21300000, guid: 17219495665db9641a041e30e45b27dd, type: 3}
+  - {fileID: 21300000, guid: 45220f6a10cfe8540a63f220b16ae68a, type: 3}
+  - {fileID: 21300000, guid: 2354529ab83eda04686236f44e17c058, type: 3}
+  - {fileID: 21300000, guid: 41424da511f6d3046b0b5c22245ecb4a, type: 3}
+  - {fileID: 21300000, guid: 003c9df8ebc4b0f4f8c0b07f4adfe75e, type: 3}
+  - {fileID: 21300000, guid: 82ecc04d5337b6b4d8a9ca873455a96f, type: 3}
+  - {fileID: 21300000, guid: 2d3b2a3cb49657749a238573b7ad1aa7, type: 3}
+  - {fileID: 21300000, guid: 36c4dc07c0f8ef64897b8f506753b2a2, type: 3}
+  - {fileID: 21300000, guid: 1aedf3fdd9cbdfe4f8f5c1bbaa051d66, type: 3}
+  - {fileID: 21300000, guid: fa834e2674da65d4898d54fb419b712d, type: 3}
+  - {fileID: 21300000, guid: e703854ad50cb8340bcd0700f1427476, type: 3}
+  - {fileID: 21300000, guid: 14053ce39b2eecd408d810be7a434dfc, type: 3}
+  - {fileID: 21300000, guid: 6ea4e0ec31a59394abd611e70f110288, type: 3}
+  - {fileID: 21300000, guid: ebc8663abfe128d41bee64eab43dbd9d, type: 3}
+  _wildCardSpriteIcon: {fileID: 21300000, guid: 0419b35125de5b1459e41c0dc0314436, type: 3}
   _pendingPair: []
   IsGameOver: 0
 --- !u!4 &948891769
