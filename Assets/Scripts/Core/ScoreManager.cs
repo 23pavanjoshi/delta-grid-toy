@@ -14,7 +14,6 @@ public class ScoreManager : MonoBehaviour
     private int _currentScore = 0;
     private int _highScore = 0;
     private int _comboCount = 0;
-    private float _lastMatchTime;
 
     private const float ComboWindow = 5f;
     private const float ComboIncrement = 0.5f;
@@ -25,6 +24,8 @@ public class ScoreManager : MonoBehaviour
     public int TurnScore => _turnScore;
     public int HighScore => _highScore;
     public int ComboCount => _comboCount;
+    
+    private ScoreCalculator _calculator = new ScoreCalculator();
 
     private void Awake()
     {
@@ -50,44 +51,25 @@ public class ScoreManager : MonoBehaviour
 
     public void OnMatch()
     {
-        bool withinWindow = _lastMatchTime > 0f && (Time.time - _lastMatchTime) <= ComboWindow;
-
-        if (withinWindow)
-            _comboCount++;
-        else
-            _comboCount = 0;
-
-        _lastMatchTime = Time.time;
-
-        float multiplier = Mathf.Min(1f + _comboCount * ComboIncrement, MaxMultiplier);
-        int earned = Mathf.RoundToInt(BaseMatchScore * multiplier);
-        _currentScore += earned;
-
-        Debug.Log($"[ScoreManager] +{earned} | combo:{_comboCount} x{multiplier:F1} | total:{_currentScore}");
-
-        CheckHighScore();
-
+        int earned = _calculator.RegisterMatch(Time.time);
+        _currentScore = _calculator.CurrentScore;
+        
         OnScoreChanged?.Invoke(_currentScore);
-        OnComboChanged?.Invoke(_comboCount);
+        OnComboChanged?.Invoke(_calculator.ComboCount);
     }
 
     public void OnMismatch()
     {
-        if (_comboCount == 0) return;
-
+        _calculator.RegisterMismatch();
         _comboCount = 0;
-        _lastMatchTime = 0f;
-
-        OnComboChanged?.Invoke(_comboCount);
-        Debug.Log("[ScoreManager] Mismatch — combo reset");
+        OnComboChanged?.Invoke(0);
     }
 
     public void ResetScore()
     {
-        _turnScore = 0;
+        _calculator.Reset();
         _currentScore = 0;
         _comboCount = 0;
-        _lastMatchTime = 0f;
 
         OnTurnScoreChanged?.Invoke(_turnScore);
         OnScoreChanged?.Invoke(_currentScore);
@@ -122,7 +104,6 @@ public class ScoreManager : MonoBehaviour
         _highScore = Mathf.Max(savedHighScore, _highScore);
 
         _comboCount = 0;
-        _lastMatchTime = 0f;
 
         OnScoreChanged?.Invoke(_currentScore);
         OnTurnScoreChanged?.Invoke(_turnScore);
