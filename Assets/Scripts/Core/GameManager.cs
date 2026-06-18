@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject _pausePanel;
     private bool _isPaused = false;
     
+    [SerializeField] private GameObject _resultPanel;
+    
     private void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -64,7 +66,10 @@ public class GameManager : MonoBehaviour
     {
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            HandleBackButton();
+            if (!BoardManager.Instance.IsGameOver)
+            {
+                HandleBackButton();
+            }
         }
     }
 
@@ -94,8 +99,14 @@ public class GameManager : MonoBehaviour
     {
         _isPaused = false;
         _pausePanel.SetActive(false);
+        _resultPanel.SetActive(false);
         Time.timeScale = 1f;
         BoardManager.Instance.RestartGame();
+    }
+
+    public void ResultDeclared()
+    {
+        _resultPanel.SetActive(true);
     }
     
     public void OnQuitGameClick()

@@ -221,6 +221,7 @@ public class BoardManager : MonoBehaviour
         IsGameOver = true;
         SaveManager.DeleteSave();
         AudioManager.Instance.PlayGameOver();
+        GameManager.Instance.ResultDeclared();
         Debug.Log("YOU WIN!");
     }
     
