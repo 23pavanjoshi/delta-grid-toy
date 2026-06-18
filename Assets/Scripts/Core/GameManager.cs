@@ -6,6 +6,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    [SerializeField] private GameObject _pausePanel;
+    private bool _isPaused = false;
+    
     private void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -67,8 +70,42 @@ public class GameManager : MonoBehaviour
 
     private void HandleBackButton()
     {
+        if (_isPaused)
+            ResumeGame();
+        else
+            PauseGame();
+    }
+
+    private void PauseGame()
+    {
+        _isPaused = true;
+        _pausePanel.SetActive(true);
+        Time.timeScale = 0f;
+    }
+    
+    public void ResumeGame()
+    {
+        _isPaused = false;
+        _pausePanel.SetActive(false);
+        Time.timeScale = 1f;
+    }
+    
+    public void OnRestartGame()
+    {
+        _isPaused = false;
+        _pausePanel.SetActive(false);
+        Time.timeScale = 1f;
+        BoardManager.Instance.RestartGame();
+    }
+    
+    public void OnQuitGameClick()
+    {
         var saveData = BoardManager.Instance.CaptureState();
         SaveManager.Save(saveData);
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 }

@@ -259,5 +259,10 @@ public class BoardManager : MonoBehaviour
 
         return data;
     }
+
+    public void RestartGame()
+    {
+        ResetBoard(_currentLayout);
+    }
     
 }
