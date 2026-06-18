@@ -38,6 +38,7 @@ public class Card : MonoBehaviour
     public void OnClicked()
     {
         if (State != CardState.FaceDown || _isAnimating) return;
+        AudioManager.Instance.PlayFlip();
         BoardManager.Instance.RequestFlip(this);
     }
     

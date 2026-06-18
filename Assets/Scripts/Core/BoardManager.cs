@@ -123,7 +123,7 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(0.4f);
         card.SetMatched();
         ScoreManager.Instance.OnMatch();
-
+        AudioManager.Instance.PlayMatch();
         _pendingPair.Clear();
         CheckWinCondition();
     }
@@ -159,12 +159,13 @@ public class BoardManager : MonoBehaviour
             cardA.SetMatched();
             cardB.SetMatched();
             ScoreManager.Instance.OnMatch();
+            AudioManager.Instance.PlayMatch();
             Debug.Log("MATCH !!!!");
         }
         else
         {
             ScoreManager.Instance.OnMismatch();
-            
+            AudioManager.Instance.PlayMismatch();
             // Small pause so player sees both faces
             yield return new WaitForSeconds(0.6f);
 
@@ -189,6 +190,7 @@ public class BoardManager : MonoBehaviour
 
         IsGameOver = true;
         SaveManager.DeleteSave();
+        AudioManager.Instance.PlayGameOver();
         Debug.Log("YOU WIN!");
     }
     
